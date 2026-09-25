@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Checklist de Granja / Área de Vivência</title>
+<style>
+:root{--brand:#1f4e79;--ok:#2e7d32;--no:#c62828;--na:#546e7a;--bg:#f3f6fa;--card:#fff;--bd:#d5dde6;--tx:#1b2733;--mut:#5b6b7b}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--tx)}
+[hidden]{display:none!important}
+button{font:inherit;cursor:pointer}
+.sticky{position:sticky;top:0;z-index:20;background:var(--brand);color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.bar{display:flex;align-items:center;gap:8px;padding:10px 12px}
+.bar .ttl{flex:1;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .sv{font-size:12px;opacity:.85}
+.ghost{background:transparent;border:1px solid rgba(255,255,255,.5);color:#fff;border-radius:8px;padding:6px 10px}
+.prog{height:5px;background:rgba(255,255,255,.25)}
+#progFill{height:100%;width:0;background:#8bd18f;transition:width .25s}
+.ptxt{font-size:12px;padding:4px 12px 6px;opacity:.95}
+.wrap{max-width:820px;margin:0 auto;padding:12px}
+h1{font-size:20px;margin:8px 0 12px;color:var(--brand)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:560px){.grid{grid-template-columns:1fr}}
+label.f{display:block;font-size:13px;color:var(--mut);margin-bottom:3px}
+input[type=text],input[type=date],select,textarea{width:100%;font:inherit;padding:10px;border:1px solid var(--bd);border-radius:8px;background:#fff;color:var(--tx)}
+textarea{resize:vertical}
+.blk-h{background:var(--brand);color:#fff;border-radius:10px 10px 0 0;padding:10px 12px;font-weight:700;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.chip{font-size:12px;background:rgba(255,255,255,.2);border-radius:99px;padding:2px 9px;white-space:nowrap}
+.blk{margin-bottom:16px}
+.blk .body{background:var(--card);border:1px solid var(--bd);border-top:0;border-radius:0 0 12px 12px}
+.item{padding:12px;border-bottom:1px solid var(--bd)}
+.item:last-child{border-bottom:0}
+.item.invalid{background:#fff4f4}
+.q{display:flex;gap:10px;margin-bottom:8px}
+.num{font-weight:700;color:var(--brand);min-width:34px}
+.opts{display:flex;gap:8px}
+.opt{flex:1;min-height:48px;border:2px solid var(--bd);background:#fff;border-radius:10px;font-weight:600;color:var(--tx)}
+.opt.s.sel{background:var(--ok);border-color:var(--ok);color:#fff}
+.opt.n.sel{background:var(--no);border-color:var(--no);color:#fff}
+.opt.na.sel{background:var(--na);border-color:var(--na);color:#fff}
+.nc{margin-top:10px;padding:10px;border-left:4px solid var(--no);background:#fff6f6;border-radius:6px}
+.nc.info{border-color:var(--brand);background:#f1f6fb}
+.nc label{display:block;font-size:13px;font-weight:600;margin-bottom:4px}
+.pl{font-size:13px;font-weight:600;margin:8px 0 4px}
+.photo-sec{padding:12px;background:#f7fafc;border-top:2px dashed var(--bd);border-radius:0 0 12px 12px}
+.photo-sec.invalid{background:#fff4f4}
+.photo-sec .t{font-weight:600;margin-bottom:8px}
+.thumbs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.th{position:relative;width:96px;height:72px}
+.th img{width:100%;height:100%;object-fit:cover;border-radius:8px;border:1px solid var(--bd)}
+.th .x{position:absolute;top:-7px;right:-7px;width:26px;height:26px;border-radius:50%;border:0;background:var(--no);color:#fff;font-size:16px;line-height:1}
+.pbtns{display:flex;gap:8px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 14px;border-radius:10px;background:var(--brand);color:#fff;font-weight:600;border:0;cursor:pointer}
+.btn.alt{background:#fff;color:var(--brand);border:1px solid var(--brand)}
+.btn.red{background:var(--no)}
+.btn.grn{background:var(--ok)}
+.btn.sm{padding:6px 10px;font-size:14px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 40px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.small{font-size:13px;color:var(--mut)}
+.tag{font-size:12px;border-radius:99px;padding:2px 8px;background:#e3edf7;color:var(--brand)}
+.tag.fin{background:#e1f3e2;color:var(--ok)}
+.warn{background:#fff8e1;border:1px solid #f0d67a;border-radius:10px;padding:10px;margin-bottom:12px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}
+.kpi{text-align:center;border:1px solid var(--bd);border-radius:10px;padding:8px;background:#fff}
+.kpi b{display:block;font-size:22px}
+table{width:100%;border-collapse:collapse;font-size:14px;margin:6px 0 12px}
+th,td{border:1px solid var(--bd);padding:6px 8px;text-align:left;vertical-align:top}
+th{background:#e8eff6}
+td.c{text-align:center;white-space:nowrap;font-weight:700}
+.rS{color:var(--ok)}.rN{color:var(--no)}.rNA{color:var(--na)}
+.rimgs{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.rimgs img{max-width:230px;max-height:170px;border-radius:6px;border:1px solid var(--bd)}
+.rblk h3{color:var(--brand);margin:16px 0 4px;break-after:avoid}
+#lb{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:99;display:flex;align-items:center;justify-content:center}
+#lb img{max-width:96%;max-height:96%}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#222;color:#fff;padding:10px 16px;border-radius:99px;z-index:100;font-size:14px}
+.pend{cursor:pointer;color:var(--no);text-decoration:underline;margin:2px 0}
+@media print{
+  body{background:#fff;font-size:12px}
+  .noprint,.sticky{display:none!important}
+  .wrap{max-width:none;padding:0}
+  .card{border:0;padding:0}
+  tr,.rimgs,.kpi{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<noscript><div style="font:16px/1.5 system-ui,sans-serif;max-width:520px;margin:40px auto;padding:20px;background:#fff8e1;border:1px solid #f0d67a;border-radius:12px;color:#1b2733">
+<b>Este aplicativo não está rodando.</b><br><br>
+Você provavelmente abriu o arquivo pela pré-visualização (WhatsApp, e-mail ou app Arquivos), que não executa aplicativos.<br><br>
+Abra o <b>endereço (link) do aplicativo no Safari</b> ou use um navegador no computador.
+</div></noscript>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   CONTEÚDO DO CHECKLIST — edite aqui para incluir/alterar itens
+   ===================================================================== */
+const GENERAL = {id:'G', q:'A granja possui área de vivência compartilhada, com outros núcleos e/ou fazendas?', info:true};
+
+const BLOCKS = [
+ {id:'b1', title:'BLOCO 1 - ÁREA DE VIVÊNCIA E REFEIÇÕES',
+  photo:'Tire uma foto panorâmica ilustrando a estrutura da área de vivência da propriedade',
+  items:[
+   ['1.1','Possui piso com material resistente e lavável?'],
+   ['1.2','Possui local coberto para refeição protegido contra intempéries?'],
+   ['1.3','O local está limpo e organizado?'],
+   ['1.4','Possui mesas e cadeiras em número suficiente?'],
+   ['1.5','As superfícies das mesas são laváveis, ou protegidas com papel toalha descartável, ou toalha de mesa?'],
+   ['1.6','O local possui lixeira com tampa?'],
+   ['1.7','Possui pia?'],
+   ['1.8','A pia tem disponibilidade de detergente e papel toalha?'],
+   ['1.9','Tem disponibilidade de água potável?'],
+   ['1.10','Tem disponibilidade de copos descartáveis?'],
+   ['1.11','Tem ganchos para pendurar as mochilas/sacolas com pertences pessoais?']
+  ]},
+ {id:'b2', title:'BLOCO 2 - INSTALAÇÕES SANITÁRIAS (BANHEIRO)',
+  photo:'Tire uma foto panorâmica mostrando o banheiro',
+  items:[
+   ['2.4','Possui assento sanitário com tampa e em boas condições?'],
+   ['2.5','O equipamento de descarga sanitária está funcionando?'],
+   ['2.6','Possui suporte para papel higiênico e papel higiênico disponível para uso?'],
+   ['2.7','O local possui lixeira?'],
+   ['2.8','Possui pia?'],
+   ['2.9','A pia tem disponibilidade de detergente e papel toalha?']
+  ]},
+ {id:'b3', title:'BLOCO 3 - LOCAL PARA BANHO',
+  photo:'Tire uma foto panorâmica do local para banho',
+  skipPhotoIf:['3.1','NA'],
+  items:[
+   ['3.1','Tem local para banho?']
+  ]},
+ {id:'b4', title:'BLOCO 4 - INFRAESTRUTURA DO AVIÁRIO E ELÉTRICA',
+  photo:'Tire uma foto panorâmica dos portões de carregamento e da infraestrutura do aviário',
+  items:[
+   ['4.1','Possui um aterramento fixo com barra de cobre para cada portão de carregamento do aviário?'],
+   ['4.2','Todos os portões de carregamento possuem tomadas modelo industrial 3 furos tipo 2+T 16A 6H 220-240V Azul?'],
+   ['4.3','Possui canos de carregamento em bom estado de conservação? Deve ter no mínimo 14 canos.'],
+   ['4.4','A grade de proteção dos ventiladores possuem vão máximo de 8 mm para proteção dos dedos?'],
+   ['4.5','Há iluminação externa nos portões de carregamento do aviário suficiente para o carregamento noturno?']
+  ]}
+];
+
+/* =====================================================================
+   ARMAZENAMENTO (IndexedDB, com fallback em memória)
+   ===================================================================== */
+const DB = (() => {
+  let db = null; const mem = {};
+  const open = () => new Promise(res => {
+    try {
+      const r = indexedDB.open('checklist-granja', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('insp', {keyPath:'id'});
+      r.onsuccess = () => { db = r.result; res(true); };
+      r.onerror = () => res(false);
+      r.onblocked = () => res(false);
+    } catch(e) { res(false); }
+  });
+  const store = m => db.transaction('insp', m).objectStore('insp');
+  return {
+    open, ok: () => !!db,
+    put: o => new Promise(res => {
+      if (!db) { mem[o.id] = JSON.parse(JSON.stringify(o)); return res(); }
+      try { const r = store('readwrite').put(o); r.onsuccess = r.onerror = () => res(); }
+      catch(e) { mem[o.id] = o; res(); }
+    }),
+    all: () => new Promise(res => {
+      if (!db) return res(Object.values(mem));
+      try { const r = store('readonly').getAll(); r.onsuccess = () => res(r.result || []); r.onerror = () => res([]); }
+      catch(e) { res([]); }
+    }),
+    del: id => new Promise(res => {
+      if (!db) { delete mem[id]; return res(); }
+      try { const r = store('readwrite').delete(id); r.onsuccess = r.onerror = () => res(); }
+      catch(e) { res(); }
+    })
+  };
+})();
+
+/* =====================================================================
+   ESTADO E UTILIDADES
+   ===================================================================== */
+let cur = null, view = 'home', saveT = null;
+const $app = document.getElementById('app');
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const today = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); };
+const brDate = s => s ? s.split('-').reverse().join('/') : '—';
+
+const newInsp = () => ({id:uid(), createdAt:Date.now(), updatedAt:Date.now(), animal:'Aves', unidade:'', granja:'', data:today(), vistoriador:'', gps:'', answers:{}, blockPhotos:{}, resumo:'', status:'rascunho'});
+const allItems = () => [GENERAL].concat(BLOCKS.flatMap(b => b.items.map(i => ({id:i[0], q:i[1], block:b.id}))));
+const itemOf = id => allItems().find(i => i.id === id);
+const ans = id => cur.answers[id] || (cur.answers[id] = {v:null, obs:'', photos:[]});
+const blockPh = id => cur.blockPhotos[id] || (cur.blockPhotos[id] = []);
+const blockPhotoNeeded = b => !(b.skipPhotoIf && ans(b.skipPhotoIf[0]).v === b.skipPhotoIf[1]);
+const canShareFiles = () => { try { return !!(navigator.canShare && navigator.canShare({files:[new File([''], 'a.pdf', {type:'application/pdf'})]})); } catch (e) { return false; } };
+
+function photosOf(key) {
+  const k = key.slice(0, key.indexOf(':')), id = key.slice(key.indexOf(':') + 1);
+  return k === 'blk' ? blockPh(id) : ans(id).photos;
+}
+
+function stats(o) {
+  const prev = cur; cur = o;
+  const s = {S:0, N:0, NA:0, answered:0, total:0};
+  allItems().forEach(it => {
+    s.total++;
+    const v = ans(it.id).v;
+    if (v) s.answered++;
+    if (!it.info) { if (v === 'S') s.S++; else if (v === 'N') s.N++; else if (v === 'NA') s.NA++; }
+  });
+  s.pct = (s.S + s.N) ? Math.round(100 * s.S / (s.S + s.N)) : null;
+  cur = prev; return s;
+}
+
+function pendencias(o) {
+  const prev = cur; cur = o; const p = [];
+  if (!o.granja.trim()) p.push({t:'Informe o nome da granja', sel:'[data-f="granja"]'});
+  BLOCKS.forEach(b => {
+    b.items.forEach(([id, q]) => {
+      const a = ans(id);
+      if (!a.v) p.push({t:`Item ${id}: sem resposta`, sel:`.item[data-id="${id}"]`});
+      else if (a.v === 'N') {
+        if (!a.obs.trim()) p.push({t:`Item ${id}: descreva a não conformidade`, sel:`.item[data-id="${id}"]`});
+        if (!a.photos.length) p.push({t:`Item ${id}: tire a foto da evidência (obrigatória para "Não")`, sel:`.item[data-id="${id}"]`});
+      }
+    });
+    if (blockPhotoNeeded(b) && !blockPh(b.id).length) p.push({t:`${b.title.split(' - ')[0]}: falta a foto panorâmica`, sel:`#ph-${b.id}`});
+  });
+  if (!ans('G').v) p.push({t:'Pergunta geral (área de vivência compartilhada): sem resposta', sel:'.item[data-id="G"]'});
+  cur = prev; return p;
+}
+
+function touch(immediate) {
+  cur.updatedAt = Date.now();
+  const st = document.getElementById('saveSt'); if (st) st.textContent = 'Salvando…';
+  clearTimeout(saveT);
+  const go = async () => { await DB.put(cur); const s = document.getElementById('saveSt'); if (s) s.textContent = DB.ok() ? 'Salvo ✓' : 'Não salvo (sem armazenamento)'; };
+  if (immediate) go(); else saveT = setTimeout(go, 350);
+}
+function toast(msg) {
+  const t = document.createElement('div'); t.id = 'toast'; t.textContent = msg; document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2400);
+}
+
+/* =====================================================================
+   FOTOS (compressão + carimbo de data/hora)
+   ===================================================================== */
+function stampText(d) {
+  const p = n => String(n).padStart(2, '0');
+  return `${p(d.getDate())}/${p(d.getMonth() + 1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+}
+function compress(file) {
+  return new Promise((res, rej) => {
+    // hora em que a foto foi tirada (arquivo da câmera/galeria); se indisponível, usa a hora atual
+    const lm = file.lastModified;
+    const taken = (lm && lm > 946684800000 && lm <= Date.now() + 60000) ? new Date(lm) : new Date();
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => {
+      const max = 1600, sc = Math.min(1, max / Math.max(img.width, img.height));
+      const w = Math.round(img.width * sc), h = Math.round(img.height * sc);
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      const x = c.getContext('2d'); x.drawImage(img, 0, 0, w, h);
+      const fs = Math.max(20, Math.round(Math.min(w / 24, h / 8)));
+      x.font = `bold ${fs}px sans-serif`; x.textBaseline = 'middle';
+      const txt = stampText(taken), pad = Math.round(fs * .45), bw = Math.ceil(x.measureText(txt).width + pad * 2), bh = Math.round(fs * 1.6);
+      x.fillStyle = 'rgba(0,0,0,.65)'; x.fillRect(0, h - bh, bw, bh);
+      x.fillStyle = '#fff'; x.fillText(txt, pad, h - bh / 2);
+      URL.revokeObjectURL(url); res(c.toDataURL('image/jpeg', 0.72));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('img')); };
+    img.src = url;
+  });
+}
+
+function pbox(key) {
+  const ps = photosOf(key);
+  return `<div class="pbox" data-key="${key}">
+    <div class="thumbs">${ps.map((p, i) => `<div class="th"><img src="${p}" alt="Foto ${i+1}" data-act="zoom"><button class="x" data-act="rmph" data-i="${i}" aria-label="Remover foto">×</button></div>`).join('')}</div>
+    <div class="pbtns">
+      <label class="btn sm">📷 Tirar foto<input type="file" accept="image/*" capture="environment" hidden></label>
+      <label class="btn alt sm">🖼️ Galeria<input type="file" accept="image/*" multiple hidden></label>
+    </div></div>`;
+}
+function refreshPbox(key) {
+  document.querySelectorAll(`.pbox[data-key="${key}"]`).forEach(el => { el.outerHTML = pbox(key); });
+  if (key.startsWith('blk:')) { const id = key.slice(4); document.getElementById('ph-' + id)?.classList.remove('invalid'); }
+  if (key.startsWith('ev:')) document.querySelector(`.item[data-id="${key.slice(3)}"]`)?.classList.remove('invalid');
+  updateProgress();
+}
+
+/* =====================================================================
+   TELA: INÍCIO
+   ===================================================================== */
+async function viewHome() {
+  view = 'home'; cur = null;
+  const list = (await DB.all()).sort((a, b) => b.updatedAt - a.updatedAt);
+  $app.innerHTML = `
+  <div class="sticky"><div class="bar"><div class="ttl">Checklist de Granja</div></div></div>
+  <main class="wrap">
+    ${DB.ok() ? '' : '<div class="warn">⚠️ Este navegador bloqueou o armazenamento local. Os dados ficam só enquanto a página estiver aberta — gere o relatório/backup antes de fechar.</div>'}
+    <h1>Vistorias</h1>
+    <div class="actions" style="margin-top:0"><button class="btn" data-act="new">＋ Nova vistoria</button>
+      <label class="btn alt">⬆️ Importar backup<input type="file" id="impFile" accept=".json,application/json" hidden></label>
+      ${list.length ? '<button class="btn alt" data-act="backup">⬇️ Exportar backup</button>' : ''}</div>
+    ${list.length ? list.map(o => { const s = stats(o); return `
+      <div class="card"><div class="row"><div>
+        <b>${esc(o.granja || 'Sem nome')}</b> <span class="tag ${o.status === 'finalizada' ? 'fin' : ''}">${o.status}</span><br>
+        <span class="small">${o.unidade ? esc(o.unidade) + ' • ' : ''}${esc(o.animal)} • ${brDate(o.data)} • ${s.answered}/${s.total} itens${s.N ? ' • ' + s.N + ' não conf.' : ''}</span></div>
+        <div style="display:flex;gap:6px"><button class="btn sm" data-act="open" data-id="${o.id}">Abrir</button><button class="btn sm red" data-act="del" data-id="${o.id}">🗑</button></div></div></div>`; }).join('')
+      : '<div class="card small">Nenhuma vistoria ainda. Toque em “Nova vistoria” para começar.</div>'}
+  </main>`;
+}
+
+/* =====================================================================
+   TELA: VISTORIA
+   ===================================================================== */
+function itemHtml(it) {
+  const a = ans(it.id), need = it.info ? a.v === 'S' : a.v === 'N';
+  return `<div class="item" data-id="${it.id}">
+    <div class="q">${it.info ? '' : `<span class="num">${it.id}</span>`}<span>${esc(it.q)}</span></div>
+    <div class="opts">
+      <button class="opt s ${a.v === 'S' ? 'sel' : ''}" data-act="ans" data-v="S">Sim</button>
+      <button class="opt n ${a.v === 'N' ? 'sel' : ''}" data-act="ans" data-v="N">Não</button>
+      ${it.info ? '' : `<button class="opt na ${a.v === 'NA' ? 'sel' : ''}" data-act="ans" data-v="NA">N/A</button>`}
+    </div>
+    <div class="nc ${it.info ? 'info' : ''}" ${need ? '' : 'hidden'}>
+      <label>${it.info ? 'Com quais núcleos/fazendas? (opcional)' : 'O que está não conforme? *'}</label>
+      <textarea data-obs rows="3" placeholder="${it.info ? 'Ex.: Núcleo 2 e Fazenda X' : 'Descreva a não conformidade encontrada'}">${esc(a.obs)}</textarea>
+      ${it.info ? '' : `<div class="pl">Foto da evidência (obrigatória) *</div>${pbox('ev:' + it.id)}`}
+    </div></div>`;
+}
+
+function viewInsp() {
+  view = 'insp'; const o = cur;
+  $app.innerHTML = `
+  <div class="sticky"><div class="bar"><button class="ghost" data-act="home">← Início</button>
+    <div class="ttl">${esc(o.granja || 'Nova vistoria')}</div><span id="saveSt" class="sv">Salvo ✓</span></div>
+    <div class="prog"><div id="progFill"></div></div><div class="ptxt" id="progTxt"></div></div>
+  <main class="wrap">
+    <h1>Checklist de verificação da granja / área de vivência</h1>
+    <div class="card"><div class="grid">
+      <div><label class="f">Animal</label><select data-f="animal"><option ${o.animal === 'Aves' ? 'selected' : ''}>Aves</option><option ${o.animal === 'Suínos' ? 'selected' : ''}>Suínos</option></select></div>
+      <div><label class="f">Data da vistoria</label><input type="date" data-f="data" value="${esc(o.data)}"></div>
+      <div><label class="f">Unidade</label><input type="text" data-f="unidade" value="${esc(o.unidade || '')}" placeholder="Unidade"></div>
+      <div><label class="f">Nome da granja *</label><input type="text" data-f="granja" value="${esc(o.granja)}" placeholder="Nome da granja"></div>
+      <div><label class="f">Vistoriador</label><input type="text" data-f="vistoriador" value="${esc(o.vistoriador)}" placeholder="Nome de quem vistoria"></div>
+      <div style="grid-column:1/-1"><label class="f">Localização (GPS)</label>
+        <div style="display:flex;gap:8px"><input type="text" data-f="gps" value="${esc(o.gps)}" placeholder="Latitude, longitude"><button class="btn alt sm" data-act="gps" style="white-space:nowrap">📍 Obter</button></div></div>
+    </div></div>
+    <div class="card" style="padding:0">${itemHtml(GENERAL)}</div>
+    ${BLOCKS.map(b => `
+    <section class="blk" id="blk-${b.id}">
+      <div class="blk-h"><span>${esc(b.title)}</span><span class="chip" id="chip-${b.id}"></span></div>
+      <div class="body">${b.items.map(i => itemHtml({id:i[0], q:i[1]})).join('')}
+        <div class="photo-sec" id="ph-${b.id}"><div class="t">📸 ${esc(b.photo)}<span id="rq-${b.id}"> *</span></div>${pbox('blk:' + b.id)}</div>
+      </div>
+    </section>`).join('')}
+    <div class="card"><label class="f"><b>Resumo do atendimento / avaliação</b></label>
+      <textarea data-f="resumo" rows="5" placeholder="Resumo geral, pontos de atenção, combinados com o produtor...">${esc(o.resumo)}</textarea></div>
+    <div class="actions"><button class="btn grn" data-act="review">📄 Revisar e gerar relatório</button></div>
+  </main>`;
+  updateProgress();
+}
+
+function updateProgress() {
+  if (view !== 'insp') return;
+  const s = stats(cur);
+  const f = document.getElementById('progFill'); if (f) f.style.width = Math.round(100 * s.answered / s.total) + '%';
+  const t = document.getElementById('progTxt'); if (t) t.textContent = `${s.answered}/${s.total} itens respondidos • ${s.N} não conforme(s)` + (s.pct !== null ? ` • conformidade ${s.pct}%` : '');
+  BLOCKS.forEach(b => {
+    const done = b.items.filter(i => ans(i[0]).v).length, ph = blockPh(b.id).length;
+    const c = document.getElementById('chip-' + b.id);
+    const need = blockPhotoNeeded(b);
+    if (c) c.textContent = `${done}/${b.items.length} • ${need ? (ph ? '📷 ok' : '📷 pendente') : '📷 dispensada'}`;
+    const rq = document.getElementById('rq-' + b.id); if (rq) rq.textContent = need ? ' *' : ' (não necessária: item N/A)';
+  });
+}
+
+/* =====================================================================
+   TELA: RELATÓRIO
+   ===================================================================== */
+function viewReport() {
+  view = 'report'; const o = cur, s = stats(o), pend = pendencias(o);
+  const lbl = {S:'Sim', N:'Não', NA:'N/A'};
+  const ncs = allItems().filter(i => !i.info && ans(i.id).v === 'N');
+  const imgs = ps => ps.length ? `<div class="rimgs">${ps.map(p => `<img src="${p}" alt="">`).join('')}</div>` : '';
+  const g = ans('G');
+  $app.innerHTML = `
+  <div class="sticky noprint"><div class="bar"><button class="ghost" data-act="back">← Voltar à vistoria</button><div class="ttl">Relatório</div></div></div>
+  <main class="wrap">
+    <div class="noprint">
+      ${pend.length ? `<div class="warn"><b>${pend.length} pendência(s):</b> toque para ir ao item.${pend.slice(0, 12).map(p => `<div class="pend" data-act="goto" data-sel='${esc(p.sel)}'>${esc(p.t)}</div>`).join('')}${pend.length > 12 ? '<div class="small">…e mais ' + (pend.length - 12) + '.</div>' : ''}</div>` : '<div class="warn" style="background:#e8f5e9;border-color:#a5d6a7">✅ Vistoria completa, sem pendências.</div>'}
+      <div class="actions" style="margin:0 0 12px"><button class="btn" data-act="pdf">📄 Baixar PDF</button>${canShareFiles() ? '<button class="btn" data-act="sharepdf">📤 Compartilhar PDF</button>' : ''}<button class="btn alt" data-act="print">🖨️ Imprimir</button>
+        <button class="btn grn" data-act="finish">Finalizar vistoria</button>
+        <button class="btn alt" data-act="exp1">⬇️ Backup (.json)</button></div>
+    </div>
+    <div class="card">
+      <h1 style="margin-top:0">Checklist de verificação da granja / área de vivência</h1>
+      <table><tr><th>Unidade</th><td colspan="3">${esc(o.unidade || '—')}</td></tr><tr><th>Granja</th><td>${esc(o.granja || '—')}</td><th>Animal</th><td>${esc(o.animal)}</td></tr>
+      <tr><th>Data</th><td>${brDate(o.data)}</td><th>Vistoriador</th><td>${esc(o.vistoriador || '—')}</td></tr>
+      <tr><th>GPS</th><td colspan="3">${esc(o.gps || '—')}</td></tr>
+      <tr><th>Área de vivência compartilhada?</th><td colspan="3">${g.v ? lbl[g.v] : '—'}${g.v === 'S' && g.obs ? ' — ' + esc(g.obs) : ''}</td></tr></table>
+      <div class="kpis"><div class="kpi"><b>${s.pct === null ? '—' : s.pct + '%'}</b>conformidade</div><div class="kpi"><b class="rS">${s.S}</b>Sim</div><div class="kpi"><b class="rN">${s.N}</b>Não</div><div class="kpi"><b class="rNA">${s.NA}</b>N/A</div></div>
+      <div class="small">Conformidade = Sim ÷ (Sim + Não), sem contar N/A.</div>
+
+      <h3 style="color:var(--brand)">Não conformidades (${ncs.length})</h3>
+      ${ncs.length ? `<table><tr><th>Item</th><th>Pergunta</th><th>Não conformidade</th></tr>${ncs.map(i => `<tr><td class="c">${i.id}</td><td>${esc(i.q)}</td><td>${esc(ans(i.id).obs) || '—'}${imgs(ans(i.id).photos)}</td></tr>`).join('')}</table>` : '<div class="small">Nenhuma não conformidade registrada.</div>'}
+
+      ${BLOCKS.map(b => `<div class="rblk"><h3>${esc(b.title)}</h3>
+        <table><tr><th>Item</th><th>Pergunta</th><th>Resp.</th></tr>${b.items.map(([id, q]) => { const v = ans(id).v; return `<tr><td class="c">${id}</td><td>${esc(q)}</td><td class="c r${v || ''}">${v ? lbl[v] : '—'}</td></tr>`; }).join('')}</table>
+        <div class="small">${esc(b.photo)}</div>${(blockPhotoNeeded(b) || blockPh(b.id).length) ? imgs(blockPh(b.id)) : '<div class="small">Foto dispensada (item N/A).</div>'}</div>`).join('')}
+
+      <h3 style="color:var(--brand)">Resumo do atendimento / avaliação</h3>
+      <div style="white-space:pre-wrap">${esc(o.resumo) || '—'}</div>
+    </div>
+  </main>`;
+  window.scrollTo(0, 0);
+}
+
+/* =====================================================================
+   AÇÕES
+   ===================================================================== */
+function updateItemDom(id) {
+  const el = document.querySelector(`.item[data-id="${id}"]`); if (!el) return;
+  const a = ans(id), it = id === 'G' ? GENERAL : {info:false};
+  el.querySelectorAll('.opt').forEach(b => b.classList.toggle('sel', b.dataset.v === a.v));
+  el.querySelector('.nc').hidden = !(it.info ? a.v === 'S' : a.v === 'N');
+  el.classList.remove('invalid');
+}
+
+function download(name, text, type) {
+  const url = URL.createObjectURL(new Blob([text], {type}));
+  const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click();
+  setTimeout(() => { a.remove(); URL.revokeObjectURL(url); }, 500);
+}
+
+/* =====================================================================
+   GERADOR DE PDF (sem bibliotecas, funciona offline)
+   ===================================================================== */
+const WINMAP = {0x2014:0x97, 0x2013:0x96, 0x2022:0x95, 0x201C:0x93, 0x201D:0x94, 0x2018:0x91, 0x2019:0x92, 0x2026:0x85};
+function pdfEnc(s) {
+  let r = '';
+  for (const ch of String(s == null ? '' : s)) {
+    let c = ch.codePointAt(0);
+    if (WINMAP[c]) c = WINMAP[c]; else if (c > 255 || c < 32 || (c >= 127 && c < 160)) c = 63;
+    r += String.fromCharCode(c);
+  }
+  return r.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
+}
+function jpegSize(b) {
+  let i = 2;
+  while (i < b.length - 9) {
+    if (b.charCodeAt(i) !== 0xFF) { i++; continue; }
+    const m = b.charCodeAt(i + 1);
+    if (m === 0xFF) { i++; continue; }
+    if (m >= 0xC0 && m <= 0xCF && m !== 0xC4 && m !== 0xC8 && m !== 0xCC)
+      return {h:(b.charCodeAt(i + 5) << 8) | b.charCodeAt(i + 6), w:(b.charCodeAt(i + 7) << 8) | b.charCodeAt(i + 8)};
+    i += 2 + ((b.charCodeAt(i + 2) << 8) | b.charCodeAt(i + 3));
+  }
+  return null;
+}
+function assemblePDF(pages, imgs) {
+  const objs = [], add = b => { objs.push(b); return objs.length; };
+  add('<< /Type /Catalog /Pages 2 0 R >>'); add('');
+  add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
+  add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+  const imgNums = imgs.map(im => add(`<< /Type /XObject /Subtype /Image /Width ${im.w} /Height ${im.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${im.data.length} >>\nstream\n${im.data}\nendstream`));
+  const pageNums = pages.map(pg => {
+    const c = pg.ops.join('\n');
+    const cn = add(`<< /Length ${c.length} >>\nstream\n${c}\nendstream`);
+    return add(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> /XObject << ${pg.imgs.map(i => `/Im${i} ${imgNums[i]} 0 R`).join(' ')} >> >> /Contents ${cn} 0 R >>`);
+  });
+  objs[1] = `<< /Type /Pages /Kids [${pageNums.map(n => n + ' 0 R').join(' ')}] /Count ${pageNums.length} >>`;
+  let out = '%PDF-1.4\n%\xE2\xE3\xCF\xD3\n'; const off = [];
+  objs.forEach((b, i) => { off.push(out.length); out += `${i + 1} 0 obj\n${b}\nendobj\n`; });
+  const xr = out.length;
+  out += `xref\n0 ${objs.length + 1}\n0000000000 65535 f \n` + off.map(o => String(o).padStart(10, '0') + ' 00000 n \n').join('');
+  out += `trailer\n<< /Size ${objs.length + 1} /Root 1 0 R >>\nstartxref\n${xr}\n%%EOF`;
+  const u = new Uint8Array(out.length); for (let i = 0; i < out.length; i++) u[i] = out.charCodeAt(i) & 255;
+  return u;
+}
+function buildPDF(o) {
+  const prev = cur; cur = o;
+  try {
+    const W = 595, H = 842, M = 40, CW = W - 2 * M;
+    const cv = document.createElement('canvas').getContext('2d');
+    const tw = (s, sz, b) => { cv.font = `${b ? 'bold ' : ''}${sz}px Helvetica, Arial, sans-serif`; return cv.measureText(s).width * 1.04; };
+    const BR = [31,78,121], OK = [46,125,50], NO = [198,40,40], GR = [84,110,122], TX = [27,39,51], WH = [255,255,255];
+    const col = c => c.map(v => (v / 255).toFixed(3)).join(' ');
+    const pages = [], imgs = []; let pg = null, y = 0;
+    const newPage = () => { pg = {ops:[], imgs:[]}; pages.push(pg); y = M; };
+    newPage();
+    const ensure = h => { if (y + h > H - M - 12) newPage(); };
+    const put = (s, x, sz, b, c) => pg.ops.push(`BT /${b ? 'F2' : 'F1'} ${sz} Tf ${col(c || TX)} rg ${x.toFixed(1)} ${(H - y - sz).toFixed(1)} Td (${pdfEnc(s)}) Tj ET`);
+    const wrap = (s, sz, b, maxW) => {
+      const out = [];
+      String(s == null ? '' : s).replace(/\r/g, '').replace(/\t/g, ' ').split('\n').forEach(par => {
+        let line = '';
+        par.split(' ').forEach(w => {
+          const t = line ? line + ' ' + w : w;
+          if (tw(t, sz, b) <= maxW) { line = t; return; }
+          if (line) out.push(line);
+          line = w;
+          while (tw(line, sz, b) > maxW && line.length > 1) {
+            let k = line.length; while (k > 1 && tw(line.slice(0, k), sz, b) > maxW) k--;
+            out.push(line.slice(0, k)); line = line.slice(k);
+          }
+        });
+        out.push(line);
+      });
+      return out;
+    };
+    const para = (s, x, maxW, sz, b, c) => { const lh = sz * 1.35; wrap(s, sz, b, maxW).forEach(l => { ensure(lh); put(l, x, sz, b, c); y += lh; }); };
+    const bar = t => { ensure(40); pg.ops.push(`${col(BR)} rg ${M} ${(H - y - 22).toFixed(1)} ${CW} 22 re f`); y += 5; put(t, M + 8, 11, true, WH); y += 27; };
+    const hline = () => pg.ops.push(`0.82 0.86 0.9 RG 0.5 w ${M} ${(H - y).toFixed(1)} m ${W - M} ${(H - y).toFixed(1)} l S`);
+    const kv = (k, v) => { const lh = 14, ls = wrap(v || '—', 10.5, false, CW - 150); ensure(lh * ls.length); put(k, M, 10.5, true); ls.forEach(l => { put(l, M + 150, 10.5, false); y += lh; }); };
+    const addImg = d => {
+      const m = /^data:image\/jpeg;base64,(.+)$/.exec(d || ''); if (!m) return null;
+      const bin = atob(m[1]), sz = jpegSize(bin); if (!sz) return null;
+      imgs.push({w:sz.w, h:sz.h, data:bin}); return {i:imgs.length - 1, w:sz.w, h:sz.h};
+    };
+    const images = (list, bw, bh, per) => {
+      const items = list.map(addImg).filter(Boolean);
+      for (let k = 0; k < items.length; k += per) {
+        const row = items.slice(k, k + per);
+        const sz = row.map(im => { const s = Math.min(bw / im.w, bh / im.h); return {w:im.w * s, h:im.h * s}; });
+        const rh = Math.max(...sz.map(s => s.h)); ensure(rh + 6);
+        let x = M;
+        row.forEach((im, j) => {
+          if (!pg.imgs.includes(im.i)) pg.imgs.push(im.i);
+          pg.ops.push(`q ${sz[j].w.toFixed(1)} 0 0 ${sz[j].h.toFixed(1)} ${x.toFixed(1)} ${(H - y - sz[j].h).toFixed(1)} cm /Im${im.i} Do Q`);
+          x += bw + 8;
+        });
+        y += rh + 8;
+      }
+    };
+
+    const s = stats(o), pend = pendencias(o), g = ans('G'), lbl = {S:'Sim', N:'Não', NA:'N/A'};
+    para('CHECKLIST DE VERIFICAÇÃO DA GRANJA / ÁREA DE VIVÊNCIA', M, CW, 15, true, BR); y += 6;
+    kv('Unidade', o.unidade); kv('Granja', o.granja); kv('Animal', o.animal); kv('Data da vistoria', brDate(o.data));
+    kv('Vistoriador', o.vistoriador); kv('GPS', o.gps);
+    kv('Vivência compartilhada?', g.v ? lbl[g.v] + (g.v === 'S' && g.obs ? ' — ' + g.obs : '') : '—');
+    y += 6;
+    para(`Conformidade: ${s.pct === null ? '—' : s.pct + '%'}    |    Sim: ${s.S}    |    Não: ${s.N}    |    N/A: ${s.NA}`, M, CW, 12, true, BR);
+    para('Conformidade = Sim ÷ (Sim + Não), sem contar N/A.', M, CW, 8.5, false, GR);
+    if (pend.length) para(`Atenção: vistoria com ${pend.length} pendência(s) de preenchimento.`, M, CW, 10, true, NO);
+    y += 8;
+
+    const ncs = allItems().filter(i => !i.info && ans(i.id).v === 'N');
+    bar(`NÃO CONFORMIDADES (${ncs.length})`);
+    if (!ncs.length) para('Nenhuma não conformidade registrada.', M, CW, 10, false, GR);
+    ncs.forEach(i => {
+      para(`${i.id}   ${i.q}`, M, CW, 10.5, true);
+      para('Não conformidade: ' + (ans(i.id).obs || '(sem descrição)'), M + 12, CW - 12, 10.5, false, NO);
+      images(ans(i.id).photos, 253, 190, 2); y += 4;
+    });
+    y += 6;
+
+    BLOCKS.forEach(b => {
+      bar(b.title);
+      b.items.forEach(([id, q]) => {
+        const v = ans(id).v, lh = 13.5, ls = wrap(q, 10, false, CW - 95);
+        ensure(lh * ls.length + 6);
+        put(id, M + 4, 10, true, BR); put(v ? lbl[v] : '—', W - M - 42, 10, true, v === 'S' ? OK : v === 'N' ? NO : GR);
+        ls.forEach(l => { put(l, M + 42, 10, false); y += lh; });
+        y += 2; hline(); y += 4;
+      });
+      para(b.photo, M, CW, 9, false, GR);
+      if (blockPh(b.id).length) images(blockPh(b.id), 253, 190, 2);
+      else para(blockPhotoNeeded(b) ? '(sem foto)' : 'Foto dispensada (item N/A).', M, CW, 9, false, GR);
+      y += 8;
+    });
+
+    bar('RESUMO DO ATENDIMENTO / AVALIAÇÃO');
+    para(o.resumo || '—', M, CW, 10.5, false);
+
+    const stamp = new Date().toLocaleString('pt-BR');
+    pages.forEach((p, i) => p.ops.push(`BT /F1 8 Tf 0.5 0.5 0.5 rg ${M} 22 Td (${pdfEnc(`${o.granja || 'Granja'}  •  gerado em ${stamp}  •  Página ${i + 1} de ${pages.length}`)}) Tj ET`));
+    return assemblePDF(pages, imgs);
+  } finally { cur = prev; }
+}
+
+$app.addEventListener('click', async e => {
+  const t = e.target.closest('[data-act]'); if (!t) return;
+  const act = t.dataset.act;
+  if (act === 'new') { cur = newInsp(); await DB.put(cur); viewInsp(); window.scrollTo(0, 0); }
+  else if (act === 'open') { const l = await DB.all(); cur = l.find(x => x.id === t.dataset.id); if (cur) { viewInsp(); window.scrollTo(0, 0); } }
+  else if (act === 'del') { if (confirm('Excluir esta vistoria e suas fotos? Não dá para desfazer.')) { await DB.del(t.dataset.id); viewHome(); } }
+  else if (act === 'home') { clearTimeout(saveT); if (cur) await DB.put(cur); viewHome(); }
+  else if (act === 'back') { viewInsp(); }
+  else if (act === 'review') { clearTimeout(saveT); await DB.put(cur); viewReport(); }
+  else if (act === 'print') { try { window.print(); } catch (err) { toast('Impressão indisponível: use “Baixar PDF”'); } }
+  else if (act === 'pdf' || act === 'sharepdf') {
+    try {
+      const name = 'Checklist_' + (cur.granja || 'granja').replace(/[^\w]+/g, '_') + '_' + cur.data + '.pdf';
+      const blob = new Blob([buildPDF(cur)], {type:'application/pdf'});
+      if (act === 'sharepdf') { await navigator.share({files:[new File([blob], name, {type:'application/pdf'})], title:name}); }
+      else {
+        const url = URL.createObjectURL(blob), a = document.createElement('a');
+        a.href = url; a.download = name; document.body.appendChild(a); a.click();
+        setTimeout(() => { a.remove(); URL.revokeObjectURL(url); }, 4000); toast('PDF gerado');
+      }
+    } catch (err) { if (err && err.name === 'AbortError') return; console.error(err); toast('Não foi possível gerar o PDF'); }
+  }
+  else if (act === 'finish') {
+    const p = pendencias(cur);
+    if (p.length) { alert(`Ainda há ${p.length} pendência(s). Resolva-as antes de finalizar.`); return; }
+    cur.status = 'finalizada'; await DB.put(cur); toast('Vistoria finalizada ✓');
+  }
+  else if (act === 'goto') {
+    const sel = t.dataset.sel; viewInsp();
+    setTimeout(() => { const el = document.querySelector(sel); if (el) { el.scrollIntoView({behavior:'smooth', block:'center'}); el.classList.add('invalid'); if (el.focus && el.tagName === 'INPUT') el.focus(); } }, 60);
+  }
+  else if (act === 'ans') {
+    const id = t.closest('.item').dataset.id, a = ans(id), v = t.dataset.v;
+    a.v = (a.v === v) ? null : v; updateItemDom(id); updateProgress(); touch();
+    if (a.v === 'N' || (id === 'G' && a.v === 'S')) t.closest('.item').querySelector('textarea')?.focus({preventScroll:false});
+  }
+  else if (act === 'rmph') {
+    const box = t.closest('.pbox'), key = box.dataset.key;
+    photosOf(key).splice(+t.dataset.i, 1); touch(true); refreshPbox(key);
+  }
+  else if (act === 'zoom') {
+    const d = document.createElement('div'); d.id = 'lb'; d.innerHTML = `<img src="${t.src}" alt="">`; d.onclick = () => d.remove(); document.body.appendChild(d);
+  }
+  else if (act === 'gps') {
+    if (!navigator.geolocation) return toast('GPS indisponível neste aparelho');
+    toast('Obtendo localização…');
+    navigator.geolocation.getCurrentPosition(p => {
+      cur.gps = p.coords.latitude.toFixed(5) + ', ' + p.coords.longitude.toFixed(5);
+      document.querySelector('[data-f="gps"]').value = cur.gps; touch();
+    }, () => toast('Não foi possível obter a localização'), {enableHighAccuracy:true, timeout:15000});
+  }
+  else if (act === 'backup') { const l = await DB.all(); download('backup_checklists_' + today() + '.json', JSON.stringify(l), 'application/json'); }
+  else if (act === 'exp1') { download('vistoria_' + (cur.granja || 'granja').replace(/\W+/g, '_') + '_' + cur.data + '.json', JSON.stringify([cur]), 'application/json'); }
+});
+
+$app.addEventListener('input', e => {
+  if (!cur) return;
+  const t = e.target;
+  if (t.dataset.f) {
+    cur[t.dataset.f] = t.value;
+    if (t.dataset.f === 'granja') { const ttl = document.querySelector('.bar .ttl'); if (ttl) ttl.textContent = t.value || 'Nova vistoria'; }
+    touch();
+  } else if (t.matches('[data-obs]')) {
+    ans(t.closest('.item').dataset.id).obs = t.value; t.closest('.item').classList.remove('invalid'); touch();
+  }
+});
+$app.addEventListener('change', async e => {
+  const t = e.target;
+  if (t.id === 'impFile') {
+    try {
+      const arr = [].concat(JSON.parse(await t.files[0].text()));
+      for (const o of arr) if (o && o.id && o.answers) await DB.put(o);
+      toast(arr.length + ' vistoria(s) importada(s)'); viewHome();
+    } catch (err) { toast('Arquivo inválido'); }
+    return;
+  }
+  if (t.type === 'file' && t.closest('.pbox')) {
+    const key = t.closest('.pbox').dataset.key, files = [...t.files];
+    for (const f of files) {
+      try {
+        photosOf(key).push(await compress(f));
+      } catch (err) { toast('Não foi possível ler a foto'); }
+    }
+    touch(true); refreshPbox(key);
+  }
+});
+
+/* =====================================================================
+   INÍCIO
+   ===================================================================== */
+(async () => {
+  await DB.open();
+  try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) {}
+  viewHome();
+})();
+</script>
+</body>
+</html>
